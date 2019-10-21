@@ -6,7 +6,8 @@
 
 import neovim
 
-from aerojump.aerojump import Aerojump, AerojumpSpace, AerojumpBolt
+from aerojump.aerojump import Aerojump, AerojumpSpace, AerojumpBolt, \
+    AerojumpMilk
 
 
 def get_output_of_vim_cmd(nvim, cmd):
@@ -90,6 +91,9 @@ class AerojumpNeovim(object):
         lin_nums = list(range(1, len(lines) + 1))
         if settings['mode'] == 'space':
             return AerojumpSpace(
+                    settings, lines, lin_nums, cursor_pos, top_line, num_lines)
+        elif settings['mode'] == 'milk':
+            return AerojumpMilk(
                     settings, lines, lin_nums, cursor_pos, top_line, num_lines)
         elif settings['mode'] == 'bolt':
             settings['bolt_lines_before'] = 1

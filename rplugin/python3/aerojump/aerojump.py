@@ -439,13 +439,10 @@ class Aerojump(object):
         might only need to look at filtered_lines?
 
         Parameters:
-            lines: All lines of the buffer
-            filtered_lines: Filtered lines of the buffer
-            cursor_line_index: Line index for the cursor
-            cursor_match_index: Match index of the line at cursor
+            n/a
 
         Returns:
-            List with highlights
+            n/a
         """
         highlights = []
         # Match highlights
@@ -501,16 +498,50 @@ class AerojumpSpace(Aerojump):
                 cursor_position: current cursor position
         """
 
-        lines = []
-        for l in self.lines:
-            if l.matches != []:
-                lines.append(l.raw)
-            else:
-                lines.append(' ')
+        lines = list(map(self._replace_highlights, self.lines))
 
         return {'lines':            lines,
                 'highlights':       self.highlights,
                 'cursor_position':  self.get_cursor()}
+
+    @staticmethod
+    def _replace_highlights(line):
+        if line.matches != []:
+            return line.raw
+        else:
+            return ' '
+
+
+class AerojumpMilk(Aerojump):
+
+    def _update_highlights(self):
+        """ Updates the internal highlights
+
+        NOTE: This function can likely be simplified,
+        might only need to look at filtered_lines?
+
+        Parameters:
+            n/a
+
+        Returns:
+            n/a
+        """
+        highlights = []
+
+        for l in self.lines:
+            if l not in self.filtered_lines:
+                highlights.append(("Comment", l.num-1))
+        # Match highlights
+        for l in self.filtered_lines:
+            for m in l.matches:
+                for i in m:
+                    highlights.append(('SearchResult', l.num-1, i-1, i))
+        # Cursor highlights
+        line = self.filtered_lines[self.cursor_line_index]
+        matches = line.matches[self.cursor_match_index]
+        for m in matches:
+            highlights.append(('SearchHighlight', line.num-1, m-1, m))
+        self.highlights = highlights
 
 
 class AerojumpBolt(Aerojump):
@@ -615,11 +646,11 @@ class AerojumpBolt(Aerojump):
     def _sort_filtered_lines(self):
         """ Sorts the filtered lines depending on score
 
-            Parameters:
-                n/a
+        Parameters:
+            n/a
 
-            Returns:
-                n/a
+        Returns:
+            n/a
         """
         for f in self.filtered_lines:
             f.best_score = max(f.scores)
@@ -632,13 +663,10 @@ class AerojumpBolt(Aerojump):
         might only need to look at filtered_lines?
 
         Parameters:
-            lines: All lines of the buffer
-            filtered_lines: Filtered lines of the buffer
-            cursor_line_index: Line index for the cursor
-            cursor_match_index: Match index of the line at cursor
+            n/a
 
         Returns:
-            List with highlights
+            n/a
         """
         highlights = []
         # Match highlights
